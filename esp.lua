@@ -137,6 +137,8 @@ end
 function API.SetBoxesSpeed(v) ESP.Drawing.Boxes.RotationSpeed = v end
 function API.SetBoxesFilledAlpha(v) ESP.Drawing.Boxes.Filled.Transparency = v end
 function API.SetBoxesCornerRGB(v) ESP.Drawing.Boxes.Corner.RGB = v end
+function API.SetBoxesFullRGB(v) ESP.Drawing.Boxes.Full.RGB = v end
+function API.SetBoxesFilledRGB(v) ESP.Drawing.Boxes.Filled.RGB = v end
 function API.SetFlags(v) ESP.Drawing.Flags.Enabled = v end
 function API.GetConfig() return ESP end
 function API.Reset() merge(ESP, DefaultConfig) end
@@ -364,18 +366,31 @@ function ESP_func(plr)
                     Box.Position = UDim2.new(0, Pos.X - w/2, 0, Pos.Y - h/2)
                     Box.Size = UDim2.new(0, w, 0, h)
                     Box.Visible = ESP.Drawing.Boxes.Full.Enabled or ESP.Drawing.Boxes.Filled.Enabled
-                    Box.BackgroundColor3 = ESP.Drawing.Boxes.Filled.Enabled and ESP.Drawing.Boxes.Filled.RGB or Color3.fromRGB(0,0,0)
-                    Box.BackgroundTransparency = ESP.Drawing.Boxes.Filled.Enabled and (ESP.Drawing.Boxes.GradientFill and ESP.Drawing.Boxes.Filled.Transparency or ESP.Drawing.Boxes.Filled.Transparency) or 1
+                    if ESP.Drawing.Boxes.GradientFill then
+                        Box.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                    else
+                        Box.BackgroundColor3 = ESP.Drawing.Boxes.Filled.Enabled and ESP.Drawing.Boxes.Filled.RGB or Color3.fromRGB(0,0,0)
+                    end
+                    Box.BackgroundTransparency = ESP.Drawing.Boxes.Filled.Enabled and ESP.Drawing.Boxes.Filled.Transparency or 1
                     Box.BorderSizePixel = ESP.Drawing.Boxes.Filled.Enabled and 1 or 0
                     
                     Outline.Enabled = ESP.Drawing.Boxes.Full.Enabled
                     Outline.Color = ESP.Drawing.Boxes.Full.RGB
-                    Gradient2.Enabled = ESP.Drawing.Boxes.Gradient
                     
-                    RotationAngle = RotationAngle + (tick() - Tick) * ESP.Drawing.Boxes.RotationSpeed * math.cos(math.pi/4 * tick() - math.pi/2)
-                    Gradient1.Rotation = ESP.Drawing.Boxes.Animate and RotationAngle or -45
-                    Gradient2.Rotation = ESP.Drawing.Boxes.Animate and RotationAngle or -45
-                    Tick = tick()
+                    Gradient1.Enabled = ESP.Drawing.Boxes.GradientFill
+                    if ESP.Drawing.Boxes.GradientFill then
+                        Gradient1.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, ESP.Drawing.Boxes.GradientFillRGB1), ColorSequenceKeypoint.new(1, ESP.Drawing.Boxes.GradientFillRGB2)}
+                    end
+                    
+                    Gradient2.Enabled = ESP.Drawing.Boxes.Gradient
+                    if ESP.Drawing.Boxes.Gradient then
+                        Gradient2.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, ESP.Drawing.Boxes.GradientRGB1), ColorSequenceKeypoint.new(1, ESP.Drawing.Boxes.GradientRGB2)}
+                    end
+                    
+                    local rawRot = ESP.Drawing.Boxes.Animate and ((tick() * ESP.Drawing.Boxes.RotationSpeed) % 360) or 315
+                    if rawRot > 180 then rawRot = rawRot - 360 end
+                    Gradient1.Rotation = rawRot
+                    Gradient2.Rotation = rawRot
 
                     -- Healthbar
                     local health = Humanoid.Health / Humanoid.MaxHealth

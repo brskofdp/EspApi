@@ -199,6 +199,8 @@ Box 2D autour du joueur. Trois types : Full (rectangle), Corner (coins), Filled 
 | `SetBoxesSpeed(v)` | `number` | Vitesse de rotation du gradient animé |
 | `SetBoxesFilledAlpha(v)` | `number 0–1` | Transparence du fond (0 = opaque, 1 = invisible) |
 | `SetBoxesCornerRGB(v)` | `Color3` | Couleur des coins uniquement |
+| `SetBoxesFullRGB(v)` | `Color3` | Change uniquement la couleur des boxes pleines |
+| `SetBoxesFilledRGB(v)` | `Color3` | Change uniquement la couleur de remplissage (fond) |
 
 ```lua
 -- Style corners blanc, fond violet transparent

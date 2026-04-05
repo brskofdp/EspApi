@@ -1,6 +1,20 @@
 # ESP API — Documentation complète
 
-> Execute le script ESP une seule fois. Ensuite contrôle tout via `getgenv().ESPAPI` sans jamais ré-exécuter.
+> Exécutez le script ESP une seule fois. Une fois chargé, le script s'enregistre dans la variable globale `getgenv().ESPAPI`.
+
+### Installation / Chargement
+
+```lua
+local ESPAPI = loadstring(game:HttpGet("https://raw.githubusercontent.com/brskofdp/EspApi/refs/heads/main/esp.lua"))()
+
+-- ============================================
+-- Utilisation (via getgenv() ou la variable locale)
+-- ============================================
+getgenv().ESPAPI.SetEnabled(true)
+getgenv().ESPAPI.SetTeamCheck(true)
+getgenv().ESPAPI.SetMaxDistance(300)
+getgenv().ESPAPI.SetFontSize(13)
+```
 
 ---
 

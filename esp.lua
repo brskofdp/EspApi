@@ -302,9 +302,11 @@ function ESP_func(plr)
             local Dist = (Cam.CFrame.Position - HRP.Position).Magnitude / 3.5714285714
 
             if OnScreen and Dist <= ESP.MaxDistance then
-                local Size = HRP.Size.Y
-                local scaleFactor = (Size * Cam.ViewportSize.Y) / (Pos.Z * 2)
-                local w, h = 3 * scaleFactor, 4.5 * scaleFactor
+                local top, onScreenTop = Cam:WorldToScreenPoint(HRP.Position + Vector3.new(0, 3, 0))
+                local bottom, onScreenBottom = Cam:WorldToScreenPoint(HRP.Position - Vector3.new(0, 3.5, 0))
+                
+                local h = math.abs(bottom.Y - top.Y)
+                local w = h * 0.6
 
                 if ESP.FadeOut.OnDistance then
                     for _, el in pairs({Box, Outline, Name, Distance, Weapon, Healthbar, BehindHealthbar, HealthText, WeaponIcon, LeftTop, LeftSide, BottomSide, BottomDown, RightTop, RightSide, BottomRightSide, BottomRightDown, Chams}) do
@@ -339,31 +341,38 @@ function ESP_func(plr)
                         c.BackgroundColor3 = ESP.Drawing.Boxes.Corner.RGB
                         c.Visible = ESP.Drawing.Boxes.Corner.Enabled
                     end
-                    LeftTop.Position = UDim2.new(0, Pos.X - w/2, 0, Pos.Y - h/2)
+                    LeftTop.Position = UDim2.new(0, Pos.X - w/2, 0, top.Y)
                     LeftTop.Size = UDim2.new(0, w/5, 0, 1)
-                    LeftSide.Position = UDim2.new(0, Pos.X - w/2, 0, Pos.Y - h/2)
+                    
+                    LeftSide.Position = UDim2.new(0, Pos.X - w/2, 0, top.Y)
                     LeftSide.Size = UDim2.new(0, 1, 0, h/5)
-                    BottomSide.Position = UDim2.new(0, Pos.X - w/2, 0, Pos.Y + h/2)
+                    
+                    BottomSide.Position = UDim2.new(0, Pos.X - w/2, 0, bottom.Y - h/5)
                     BottomSide.Size = UDim2.new(0, 1, 0, h/5)
-                    BottomSide.AnchorPoint = Vector2.new(0, 5)
-                    BottomDown.Position = UDim2.new(0, Pos.X - w/2, 0, Pos.Y + h/2)
+                    BottomSide.AnchorPoint = Vector2.new(0, 0)
+                    
+                    BottomDown.Position = UDim2.new(0, Pos.X - w/2, 0, bottom.Y)
                     BottomDown.Size = UDim2.new(0, w/5, 0, 1)
-                    BottomDown.AnchorPoint = Vector2.new(0, 1)
-                    RightTop.Position = UDim2.new(0, Pos.X + w/2, 0, Pos.Y - h/2)
+                    BottomDown.AnchorPoint = Vector2.new(0, 0)
+                    
+                    RightTop.Position = UDim2.new(0, Pos.X + w/2 - w/5, 0, top.Y)
                     RightTop.Size = UDim2.new(0, w/5, 0, 1)
-                    RightTop.AnchorPoint = Vector2.new(1, 0)
-                    RightSide.Position = UDim2.new(0, Pos.X + w/2 - 1, 0, Pos.Y - h/2)
+                    RightTop.AnchorPoint = Vector2.new(0, 0)
+                    
+                    RightSide.Position = UDim2.new(0, Pos.X + w/2 - 1, 0, top.Y)
                     RightSide.Size = UDim2.new(0, 1, 0, h/5)
                     RightSide.AnchorPoint = Vector2.new(0, 0)
-                    BottomRightSide.Position = UDim2.new(0, Pos.X + w/2, 0, Pos.Y + h/2)
+                    
+                    BottomRightSide.Position = UDim2.new(0, Pos.X + w/2 - 1, 0, bottom.Y - h/5)
                     BottomRightSide.Size = UDim2.new(0, 1, 0, h/5)
-                    BottomRightSide.AnchorPoint = Vector2.new(1, 1)
-                    BottomRightDown.Position = UDim2.new(0, Pos.X + w/2, 0, Pos.Y + h/2)
+                    BottomRightSide.AnchorPoint = Vector2.new(0, 0)
+                    
+                    BottomRightDown.Position = UDim2.new(0, Pos.X + w/2 - w/5, 0, bottom.Y)
                     BottomRightDown.Size = UDim2.new(0, w/5, 0, 1)
-                    BottomRightDown.AnchorPoint = Vector2.new(1, 1)
+                    BottomRightDown.AnchorPoint = Vector2.new(0, 0)
 
                     -- Boxes
-                    Box.Position = UDim2.new(0, Pos.X - w/2, 0, Pos.Y - h/2)
+                    Box.Position = UDim2.new(0, Pos.X - w/2, 0, top.Y)
                     Box.Size = UDim2.new(0, w, 0, h)
                     Box.Visible = ESP.Drawing.Boxes.Full.Enabled or ESP.Drawing.Boxes.Filled.Enabled
                     if ESP.Drawing.Boxes.GradientFill then
@@ -395,14 +404,14 @@ function ESP_func(plr)
                     -- Healthbar
                     local health = Humanoid.Health / Humanoid.MaxHealth
                     Healthbar.Visible = ESP.Drawing.Healthbar.Enabled
-                    Healthbar.Position = UDim2.new(0, Pos.X - w/2 - 6, 0, Pos.Y - h/2 + h * (1 - health))
+                    Healthbar.Position = UDim2.new(0, Pos.X - w/2 - 6, 0, top.Y + h * (1 - health))
                     Healthbar.Size = UDim2.new(0, ESP.Drawing.Healthbar.Width, 0, h * health)
                     BehindHealthbar.Visible = ESP.Drawing.Healthbar.Enabled
-                    BehindHealthbar.Position = UDim2.new(0, Pos.X - w/2 - 6, 0, Pos.Y - h/2)
+                    BehindHealthbar.Position = UDim2.new(0, Pos.X - w/2 - 6, 0, top.Y)
                     BehindHealthbar.Size = UDim2.new(0, ESP.Drawing.Healthbar.Width, 0, h)
                     if ESP.Drawing.Healthbar.HealthText then
                         local hp = math.floor(health * 100)
-                        HealthText.Position = UDim2.new(0, Pos.X - w/2 - 6, 0, Pos.Y - h/2 + h * (1 - hp/100) + 3)
+                        HealthText.Position = UDim2.new(0, Pos.X - w/2 - 6, 0, top.Y + h * (1 - hp/100) + 3)
                         HealthText.Text = tostring(hp)
                         HealthText.Visible = Humanoid.Health < Humanoid.MaxHealth
                         HealthText.TextColor3 = ESP.Drawing.Healthbar.Lerp and (health >= 0.75 and Color3.fromRGB(0,255,0) or health >= 0.5 and Color3.fromRGB(255,255,0) or health >= 0.25 and Color3.fromRGB(255,170,0) or Color3.fromRGB(255,0,0)) or ESP.Drawing.Healthbar.HealthTextRGB
@@ -418,20 +427,20 @@ function ESP_func(plr)
                     else
                         Name.Text = string.format('(<font color="rgb(255,0,0)">E</font>) %s', plr.Name)
                     end
-                    Name.Position = UDim2.new(0, Pos.X, 0, Pos.Y - h/2 - 9)
+                    Name.Position = UDim2.new(0, Pos.X, 0, top.Y - 9)
 
                     -- Distance
                     if ESP.Drawing.Distances.Enabled then
                         Distance.TextColor3 = ESP.Drawing.Distances.RGB
                         if ESP.Drawing.Distances.Position == "Bottom" then
-                            Weapon.Position = UDim2.new(0, Pos.X, 0, Pos.Y + h/2 + 18)
-                            WeaponIcon.Position = UDim2.new(0, Pos.X - 21, 0, Pos.Y + h/2 + 15)
-                            Distance.Position = UDim2.new(0, Pos.X, 0, Pos.Y + h/2 + 7)
+                            Weapon.Position = UDim2.new(0, Pos.X, 0, bottom.Y + 18)
+                            WeaponIcon.Position = UDim2.new(0, Pos.X - 21, 0, bottom.Y + 15)
+                            Distance.Position = UDim2.new(0, Pos.X, 0, bottom.Y + 7)
                             Distance.Text = string.format("%d meters", math.floor(Dist))
                             Distance.Visible = true
                         elseif ESP.Drawing.Distances.Position == "Text" then
-                            Weapon.Position = UDim2.new(0, Pos.X, 0, Pos.Y + h/2 + 8)
-                            WeaponIcon.Position = UDim2.new(0, Pos.X - 21, 0, Pos.Y + h/2 + 5)
+                            Weapon.Position = UDim2.new(0, Pos.X, 0, bottom.Y + 8)
+                            WeaponIcon.Position = UDim2.new(0, Pos.X - 21, 0, bottom.Y + 5)
                             Distance.Visible = false
                             if ESP.Options.Friendcheck and lplayer:IsFriendsWith(plr.UserId) then
                                 Name.Text = string.format('(<font color="rgb(%d,%d,%d)">F</font>) %s [%d]', ESP.Options.FriendcheckRGB.R*255, ESP.Options.FriendcheckRGB.G*255, ESP.Options.FriendcheckRGB.B*255, plr.Name, math.floor(Dist))

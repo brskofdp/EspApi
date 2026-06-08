@@ -19,6 +19,8 @@ local DefaultConfig = {
             Enabled  = true, Thermal = true, VisibleCheck = true,
             FillRGB = Color3.fromRGB(119, 120, 255), Fill_Transparency = 50,
             OutlineRGB = Color3.fromRGB(119, 120, 255), Outline_Transparency = 0,
+            Rainbow = false, RainbowSpeed = 0.5,
+            TeamColor = false, TeamColorOverride = false, TeamColorRGB = Color3.fromRGB(255, 80, 80)
         },
         Names = { Enabled = true, RGB = Color3.fromRGB(255, 255, 255) },
         Flags = { Enabled = true },
@@ -81,6 +83,12 @@ function API.SetChamsThermal(v) ESP.Drawing.Chams.Thermal = v end
 function API.SetChamsVisCheck(v) ESP.Drawing.Chams.VisibleCheck = v end
 function API.SetChamsFillAlpha(v) ESP.Drawing.Chams.Fill_Transparency = v end
 function API.SetChamsOutAlpha(v) ESP.Drawing.Chams.Outline_Transparency = v end
+function API.SetChamsRainbow(v) ESP.Drawing.Chams.Rainbow = v end
+function API.SetChamsRainbowSpeed(v) ESP.Drawing.Chams.RainbowSpeed = v end
+function API.SetChamsTeamColor(v) ESP.Drawing.Chams.TeamColor = v end
+function API.SetChamsTeamColorOverride(v) ESP.Drawing.Chams.TeamColorOverride = v end
+function API.SetChamsTeamColorRGB(v) ESP.Drawing.Chams.TeamColorRGB = v end
+
 function API.SetNames(enabled, color)
     ESP.Drawing.Names.Enabled = enabled
     if color then ESP.Drawing.Names.RGB = color end
@@ -324,8 +332,30 @@ function ESP_func(plr)
                     -- Chams
                     Chams.Adornee = plr.Character
                     Chams.Enabled = ESP.Drawing.Chams.Enabled
-                    Chams.FillColor = ESP.Drawing.Chams.FillRGB
-                    Chams.OutlineColor = ESP.Drawing.Chams.OutlineRGB
+                    
+                    local fillRGB = ESP.Drawing.Chams.FillRGB
+                    local outlineRGB = ESP.Drawing.Chams.OutlineRGB
+                    
+                    if ESP.Drawing.Chams.Rainbow then
+                        fillRGB = Color3.fromHSV((tick() * ESP.Drawing.Chams.RainbowSpeed) % 1, 1, 1)
+                        outlineRGB = Color3.fromHSV((tick() * ESP.Drawing.Chams.RainbowSpeed) % 1, 1, 1)
+                    elseif ESP.Drawing.Chams.TeamColor then
+                        if plr.Team then
+                            fillRGB = plr.TeamColor.Color
+                            if ESP.Drawing.Chams.TeamColorOverride then
+                                outlineRGB = ESP.Drawing.Chams.TeamColorRGB
+                            else
+                                outlineRGB = plr.TeamColor.Color
+                            end
+                        else
+                            fillRGB = ESP.Drawing.Chams.TeamColorRGB
+                            outlineRGB = ESP.Drawing.Chams.TeamColorRGB
+                        end
+                    end
+                    
+                    Chams.FillColor = fillRGB
+                    Chams.OutlineColor = outlineRGB
+                    
                     if ESP.Drawing.Chams.Thermal then
                         local breathe = math.atan(math.sin(tick() * 2)) * 2 / math.pi
                         Chams.FillTransparency = (ESP.Drawing.Chams.Fill_Transparency/100) * breathe * 0.01 + (ESP.Drawing.Chams.Fill_Transparency/100)

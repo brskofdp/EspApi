@@ -213,12 +213,12 @@ function ESP_func(plr)
     local Outline = Functions:Create("UIStroke", {Parent = Box, Enabled = ESP.Drawing.Boxes.Gradient, Transparency = 0, Color = Color3.fromRGB(255, 255, 255), LineJoinMode = Enum.LineJoinMode.Miter})
     local Gradient2 = Functions:Create("UIGradient", {Parent = Outline, Enabled = ESP.Drawing.Boxes.Gradient, Color = ColorSequence.new{ColorSequenceKeypoint.new(0, ESP.Drawing.Boxes.GradientRGB1), ColorSequenceKeypoint.new(1, ESP.Drawing.Boxes.GradientRGB2)}})
 
-    local BehindHealthbar = Functions:Create("Frame", {Parent = ScreenGui, ZIndex = -1, BackgroundColor3 = Color3.fromRGB(0, 0, 0), BackgroundTransparency = 0, BorderSizePixel = 0})
-    local HealthbarContainer = Functions:Create("Frame", {Parent = ScreenGui, BackgroundTransparency = 1, ClipsDescendants = true, BorderSizePixel = 0})
+    local BehindHealthbar = Functions:Create("Frame", {Parent = ScreenGui, BackgroundColor3 = Color3.fromRGB(0, 0, 0), BackgroundTransparency = 0, BorderSizePixel = 0})
+    local HealthbarContainer = Functions:Create("Frame", {Parent = BehindHealthbar, BackgroundTransparency = 1, ClipsDescendants = true, BorderSizePixel = 0})
     local Healthbar = Functions:Create("Frame", {Parent = HealthbarContainer, BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0, BorderSizePixel = 0})
     local HealthbarGradient = Functions:Create("UIGradient", {Parent = Healthbar, Enabled = ESP.Drawing.Healthbar.Gradient, Rotation = -90, Color = ColorSequence.new{ColorSequenceKeypoint.new(0, ESP.Drawing.Healthbar.GradientRGB1), ColorSequenceKeypoint.new(0.5, ESP.Drawing.Healthbar.GradientRGB2), ColorSequenceKeypoint.new(1, ESP.Drawing.Healthbar.GradientRGB3)}})
 
-    local HealthText = Functions:Create("TextLabel", {Parent = ScreenGui, Position = UDim2.new(0.5, 0, 0, 31), Size = UDim2.new(0, 100, 0, 20), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(255, 255, 255), Font = ESP.Font or Enum.Font.SourceSansBold, TextSize = ESP.FontSize, TextStrokeTransparency = 0, TextStrokeColor3 = Color3.fromRGB(0, 0, 0)})
+    local HealthText = Functions:Create("TextLabel", {Parent = BehindHealthbar, Size = UDim2.new(0, 100, 0, 20), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(255, 255, 255), Font = ESP.Font or Enum.Font.SourceSansBold, TextSize = ESP.FontSize, TextStrokeTransparency = 0, TextStrokeColor3 = Color3.fromRGB(0, 0, 0)})
 
     local Chams = Functions:Create("Highlight", {Name = "EuphoriaChams", FillTransparency = 1, OutlineTransparency = 0, OutlineColor = Color3.fromRGB(119, 120, 255), DepthMode = "AlwaysOnTop"})
 
@@ -434,32 +434,22 @@ function ESP_func(plr)
                     BehindHealthbar.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
                     BehindHealthbar.BackgroundTransparency = 0
 
-                    -- Container : fenêtre visible (la portion correspondant à la vie restante, ancrée en bas)
                     HealthbarContainer.Visible = ESP.Drawing.Healthbar.Enabled
-                    HealthbarContainer.Position = UDim2.new(0, Pos.X - w/2 - 6, 0, top.Y + h * (1 - health))
-                    HealthbarContainer.Size = UDim2.new(0, ESP.Drawing.Healthbar.Width, 0, h * health)
+                    HealthbarContainer.Position = UDim2.new(0, 0, 1 - health, 0)
+                    HealthbarContainer.Size = UDim2.new(1, 0, health, 0)
 
-                    -- Healthbar : occupe TOUT le container (pas h fixe) pour eviter le rectangle noir
-                    Healthbar.Size = UDim2.new(1, 0, 1, 0)
-                    Healthbar.Position = UDim2.new(0, 0, 0, 0)
+                    Healthbar.Size = UDim2.new(1, 0, 0, h)
+                    Healthbar.Position = UDim2.new(0, 0, 0, -h * (1 - health))
                     Healthbar.BackgroundTransparency = 0
 
                     if ESP.Drawing.Healthbar.Gradient then
-                        -- Pas de gradient spatial deforme sur la petite barre : on interpole
-                        -- la couleur "actuelle" selon la vie (bas->milieu->haut)
-                        HealthbarGradient.Enabled = false
-
-                        local c1 = ESP.Drawing.Healthbar.GradientRGB1 -- vie basse
-                        local c2 = ESP.Drawing.Healthbar.GradientRGB2 -- vie moyenne
-                        local c3 = ESP.Drawing.Healthbar.GradientRGB3 -- vie haute
-
-                        local color
-                        if health <= 0.5 then
-                            color = c1:Lerp(c2, health * 2)
-                        else
-                            color = c2:Lerp(c3, (health - 0.5) * 2)
-                        end
-                        Healthbar.BackgroundColor3 = color
+                        HealthbarGradient.Enabled = true
+                        HealthbarGradient.Color = ColorSequence.new{
+                            ColorSequenceKeypoint.new(0, ESP.Drawing.Healthbar.GradientRGB1),
+                            ColorSequenceKeypoint.new(0.5, ESP.Drawing.Healthbar.GradientRGB2),
+                            ColorSequenceKeypoint.new(1, ESP.Drawing.Healthbar.GradientRGB3)
+                        }
+                        Healthbar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
                     else
                         HealthbarGradient.Enabled = false
                         Healthbar.BackgroundColor3 = Color3.fromRGB(255, 0, 0):Lerp(Color3.fromRGB(0, 255, 0), health)
@@ -467,7 +457,7 @@ function ESP_func(plr)
 
                     if ESP.Drawing.Healthbar.HealthText then
                         local hp = math.floor(health * 100)
-                        HealthText.Position = UDim2.new(0, Pos.X - w/2 - 6, 0, top.Y + h * (1 - hp/100) + 3)
+                        HealthText.Position = UDim2.new(0.5, 0, 1 - hp/100, 3)
                         HealthText.Text = tostring(hp)
                         HealthText.Visible = Humanoid.Health < Humanoid.MaxHealth
                         HealthText.TextColor3 = ESP.Drawing.Healthbar.Lerp and (health >= 0.75 and Color3.fromRGB(0,255,0) or health >= 0.5 and Color3.fromRGB(255,255,0) or health >= 0.25 and Color3.fromRGB(255,170,0) or Color3.fromRGB(255,0,0)) or ESP.Drawing.Healthbar.HealthTextRGB

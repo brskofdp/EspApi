@@ -214,8 +214,7 @@ function ESP_func(plr)
     local Gradient2 = Functions:Create("UIGradient", {Parent = Outline, Enabled = ESP.Drawing.Boxes.Gradient, Color = ColorSequence.new{ColorSequenceKeypoint.new(0, ESP.Drawing.Boxes.GradientRGB1), ColorSequenceKeypoint.new(1, ESP.Drawing.Boxes.GradientRGB2)}})
 
     local BehindHealthbar = Functions:Create("Frame", {Parent = ScreenGui, BackgroundColor3 = Color3.fromRGB(0, 0, 0), BackgroundTransparency = 0, BorderSizePixel = 0})
-    local HealthbarContainer = Functions:Create("Frame", {Parent = BehindHealthbar, BackgroundTransparency = 1, ClipsDescendants = true, BorderSizePixel = 0})
-    local Healthbar = Functions:Create("Frame", {Parent = HealthbarContainer, BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0, BorderSizePixel = 0})
+    local Healthbar = Functions:Create("Frame", {Parent = BehindHealthbar, BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0, BorderSizePixel = 0})
     local HealthbarGradient = Functions:Create("UIGradient", {Parent = Healthbar, Enabled = ESP.Drawing.Healthbar.Gradient, Rotation = -90, Color = ColorSequence.new{ColorSequenceKeypoint.new(0, ESP.Drawing.Healthbar.GradientRGB1), ColorSequenceKeypoint.new(0.5, ESP.Drawing.Healthbar.GradientRGB2), ColorSequenceKeypoint.new(1, ESP.Drawing.Healthbar.GradientRGB3)}})
 
     local HealthText = Functions:Create("TextLabel", {Parent = BehindHealthbar, Size = UDim2.new(0, 100, 0, 20), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(255, 255, 255), Font = ESP.Font or Enum.Font.SourceSansBold, TextSize = ESP.FontSize, TextStrokeTransparency = 0, TextStrokeColor3 = Color3.fromRGB(0, 0, 0)})
@@ -238,7 +237,6 @@ function ESP_func(plr)
             Name.Visible = false
             Distance.Visible = false
             Healthbar.Visible = false
-            HealthbarContainer.Visible = false
             BehindHealthbar.Visible = false
             HealthText.Visible = false
             LeftTop.Visible = false
@@ -255,7 +253,6 @@ function ESP_func(plr)
                 Distance:Destroy()
                 Box:Destroy()
                 Healthbar:Destroy()
-                HealthbarContainer:Destroy()
                 BehindHealthbar:Destroy()
                 HealthText:Destroy()
                 LeftTop:Destroy()
@@ -273,13 +270,15 @@ function ESP_func(plr)
 
         Connection = Euphoria.RunService.RenderStepped:Connect(function()
             if not ESP.Enabled then HideESP(); return end
-            if not plr.Character or not plr.Character:FindFirstChild("HumanoidRootPart") then HideESP(); return end
+            if not plr.Character then HideESP(); return end
+
+            local HRP = plr.Character:FindFirstChild("HumanoidRootPart")
+            local Humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
+            if not HRP or not Humanoid then HideESP(); return end
 
             local isSelf = (plr == lplayer)
             if isSelf and not ESP.SelfESP then HideESP(); return end
 
-            local HRP = plr.Character.HumanoidRootPart
-            local Humanoid = plr.Character:WaitForChild("Humanoid")
             local Pos, OnScreen = Cam:WorldToScreenPoint(HRP.Position)
             local Dist = (Cam.CFrame.Position - HRP.Position).Magnitude / 3.5714285714
 
@@ -291,7 +290,7 @@ function ESP_func(plr)
                 local w = h * 0.6
 
                 if ESP.FadeOut.OnDistance then
-                    for _, el in pairs({Box, Outline, Name, Distance, BehindHealthbar, Healthbar, HealthbarContainer, HealthText, LeftTop, LeftSide, BottomSide, BottomDown, RightTop, RightSide, BottomRightSide, BottomRightDown, Chams}) do
+                    for _, el in pairs({Box, Outline, Name, Distance, BehindHealthbar, Healthbar, HealthText, LeftTop, LeftSide, BottomSide, BottomDown, RightTop, RightSide, BottomRightSide, BottomRightDown, Chams}) do
                         Functions:FadeOutOnDist(el, Dist)
                     end
                 end
@@ -434,12 +433,9 @@ function ESP_func(plr)
                     BehindHealthbar.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
                     BehindHealthbar.BackgroundTransparency = 0
 
-                    HealthbarContainer.Visible = ESP.Drawing.Healthbar.Enabled
-                    HealthbarContainer.Position = UDim2.new(0, 0, 1 - health, 0)
-                    HealthbarContainer.Size = UDim2.new(1, 0, health, 0)
-
-                    Healthbar.Size = UDim2.new(1, 0, 0, h)
-                    Healthbar.Position = UDim2.new(0, 0, 0, -h * (1 - health))
+                    Healthbar.Visible = ESP.Drawing.Healthbar.Enabled
+                    Healthbar.Position = UDim2.new(0, 0, 1 - health, 0)
+                    Healthbar.Size = UDim2.new(1, 0, health, 0)
                     Healthbar.BackgroundTransparency = 0
 
                     if ESP.Drawing.Healthbar.Gradient then

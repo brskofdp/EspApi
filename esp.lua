@@ -422,25 +422,44 @@ function ESP_func(plr)
                     Gradient2.Rotation = rawRot
 
 
-                    local health = math.clamp(Humanoid.Health / Humanoid.MaxHealth, 0, 1)
+                    local maxHealth = Humanoid.MaxHealth
+                    local health = 0
+                    if maxHealth and maxHealth > 0 then
+                        health = math.clamp(Humanoid.Health / maxHealth, 0, 1)
+                    end
+
                     BehindHealthbar.Visible = ESP.Drawing.Healthbar.Enabled
                     BehindHealthbar.Position = UDim2.new(0, Pos.X - w/2 - 6, 0, top.Y)
                     BehindHealthbar.Size = UDim2.new(0, ESP.Drawing.Healthbar.Width, 0, h)
+                    BehindHealthbar.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                    BehindHealthbar.BackgroundTransparency = 0
 
+                    -- Container : fenêtre visible (la portion correspondant à la vie restante, ancrée en bas)
                     HealthbarContainer.Visible = ESP.Drawing.Healthbar.Enabled
                     HealthbarContainer.Position = UDim2.new(0, Pos.X - w/2 - 6, 0, top.Y + h * (1 - health))
                     HealthbarContainer.Size = UDim2.new(0, ESP.Drawing.Healthbar.Width, 0, h * health)
 
-                    Healthbar.Size = UDim2.new(0, ESP.Drawing.Healthbar.Width, 0, h)
-                    Healthbar.Position = UDim2.new(0, 0, 0, -h * (1 - health))
+                    -- Healthbar : occupe TOUT le container (pas h fixe) pour eviter le rectangle noir
+                    Healthbar.Size = UDim2.new(1, 0, 1, 0)
+                    Healthbar.Position = UDim2.new(0, 0, 0, 0)
+                    Healthbar.BackgroundTransparency = 0
 
                     if ESP.Drawing.Healthbar.Gradient then
-                        HealthbarGradient.Enabled = true
-                        HealthbarGradient.Color = ColorSequence.new{
-                            ColorSequenceKeypoint.new(0, ESP.Drawing.Healthbar.GradientRGB1),
-                            ColorSequenceKeypoint.new(0.5, ESP.Drawing.Healthbar.GradientRGB2),
-                            ColorSequenceKeypoint.new(1, ESP.Drawing.Healthbar.GradientRGB3)
-                        }
+                        -- Pas de gradient spatial deforme sur la petite barre : on interpole
+                        -- la couleur "actuelle" selon la vie (bas->milieu->haut)
+                        HealthbarGradient.Enabled = false
+
+                        local c1 = ESP.Drawing.Healthbar.GradientRGB1 -- vie basse
+                        local c2 = ESP.Drawing.Healthbar.GradientRGB2 -- vie moyenne
+                        local c3 = ESP.Drawing.Healthbar.GradientRGB3 -- vie haute
+
+                        local color
+                        if health <= 0.5 then
+                            color = c1:Lerp(c2, health * 2)
+                        else
+                            color = c2:Lerp(c3, (health - 0.5) * 2)
+                        end
+                        Healthbar.BackgroundColor3 = color
                     else
                         HealthbarGradient.Enabled = false
                         Healthbar.BackgroundColor3 = Color3.fromRGB(255, 0, 0):Lerp(Color3.fromRGB(0, 255, 0), health)

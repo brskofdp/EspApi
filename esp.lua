@@ -187,13 +187,13 @@ function API.Refresh()
     if CoreGui:FindFirstChild("ESPHolder") then
         CoreGui:FindFirstChild("ESPHolder"):Destroy()
     end
-    ScreenGui = Functions:Create("ScreenGui", { Parent = CoreGui, Name = "ESPHolder" })
+    ScreenGui = Functions:Create("ScreenGui", { Parent = CoreGui, Name = "ESPHolder", IgnoreGuiInset = true })
     for _, v in pairs(Players:GetPlayers()) do
         coroutine.wrap(ESP_func)(v)
     end
 end
 
-ScreenGui = CoreGui:FindFirstChild("ESPHolder") or Functions:Create("ScreenGui", { Parent = CoreGui, Name = "ESPHolder" })
+ScreenGui = CoreGui:FindFirstChild("ESPHolder") or Functions:Create("ScreenGui", { Parent = CoreGui, Name = "ESPHolder", IgnoreGuiInset = true })
 
 local DupeCheck = function(plr)
     if ScreenGui:FindFirstChild(plr.Name) then
@@ -279,7 +279,7 @@ function ESP_func(plr)
             local isSelf = (plr == lplayer)
             if isSelf and not ESP.SelfESP then HideESP(); return end
 
-            local Pos, OnScreen = Cam:WorldToScreenPoint(HRP.Position)
+            local Pos, OnScreen = Cam:WorldToViewportPoint(HRP.Position)
             local Dist = (Cam.CFrame.Position - HRP.Position).Magnitude / 3.5714285714
 
             if OnScreen and Dist <= ESP.MaxDistance then

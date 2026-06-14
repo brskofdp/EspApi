@@ -283,8 +283,12 @@ function ESP_func(plr)
             local Dist = (Cam.CFrame.Position - HRP.Position).Magnitude / 3.5714285714
 
             if OnScreen and Dist <= ESP.MaxDistance then
-                local top, onScreenTop = Cam:WorldToScreenPoint(HRP.Position + Vector3.new(0, 3, 0))
-                local bottom, onScreenBottom = Cam:WorldToScreenPoint(HRP.Position - Vector3.new(0, 3.5, 0))
+                local Head = plr.Character:FindFirstChild("Head")
+                local topWorld = Head and Head.Position + Vector3.new(0, 0.5, 0) or HRP.Position + Vector3.new(0, 3, 0)
+                local bottomWorld = HRP.Position - Vector3.new(0, 3, 0)
+
+                local top = Cam:WorldToViewportPoint(topWorld)
+                local bottom = Cam:WorldToViewportPoint(bottomWorld)
 
                 local h = math.abs(bottom.Y - top.Y)
                 local w = h * 0.6
